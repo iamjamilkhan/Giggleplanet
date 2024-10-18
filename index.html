@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Racing Game - Splash Screen</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+        }
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #4A90E2, #9013FE);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+        }
+        #loading-wheel {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 2s linear infinite;
+            margin-top: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #game-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <div>
+        <h1>Loading Horse Racing Game...</h1>
+        <div id="loading-wheel"></div>
+    </div>
+</div>
+
+<div id="game-container"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+    const splashScreen = document.getElementById('splash-screen');
+    const gameContainer = document.getElementById('game-container');
+
+    // Initialize Three.js scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    gameContainer.appendChild(renderer.domElement);
+
+    // Load 3D horse model
+    const loader = new THREE.GLTFLoader();
+    loader.load('https://example.com/horse_model.glb', function(gltf) {
+        const horse = gltf.scene;
+        horse.scale.set(1.5, 1.5, 1.5);
+        horse.position.set(0, -1, 0);
+        scene.add(horse);
+
+        // Start animation once loaded
+        function animateHorse() {
+            horse.rotation.y += 0.01;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animateHorse);
+        }
+        animateHorse();
+
+        // Hide splash screen and show game
+        splashScreen.style.display = 'none';
+        gameContainer.style.display = 'block';
+    },
+    // Progress function to simulate loading
+    function(xhr) {
+        const percentComplete = (xhr.loaded / xhr.total) * 100;
+        console.log( Math.round(percentComplete, 2) + '% loaded' );
+    },
+    // Handle loading error
+    function(error) {
+        console.error('An error occurred loading the 3D model', error);
+    });
+
+    camera.position.z = 5;
+
+    // Resize renderer on window resize
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+</script>
+
+</body>
+</html>
